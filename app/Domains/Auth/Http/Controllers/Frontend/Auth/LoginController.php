@@ -3,10 +3,12 @@
 namespace App\Domains\Auth\Http\Controllers\Frontend\Auth;
 
 use App\Domains\Auth\Events\User\UserLoggedIn;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use LangleyFoxall\LaravelNISTPasswordRules\PasswordRules;
 
 /**
@@ -112,5 +114,14 @@ class LoginController extends Controller
         }
 
         return redirect()->intended($this->redirectPath());
+    }
+
+    public function loginAPI(Request $request){
+        if(Auth::attempt($request->all())){
+            $user = Auth::user();
+            $token = $user->createToken('Token Name')->accessToken;
+            return ResponseHelper::json($token,200,'Login');
+        };
+        return ResponseHelper::json('Failed Authentication', 401,'Login');
     }
 }
