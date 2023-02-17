@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\Vendors\MarvelHelper;
+use App\Helpers\Vendors\SwapiHelper;
 use App\Vendors\Marvel;
 
 class VendorHelper{
@@ -11,5 +12,6 @@ class VendorHelper{
 
      public static function LoadConfig(){
         MarvelHelper::Config();
+        SwapiHelper::Config();
      }
 }

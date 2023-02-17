@@ -9,13 +9,12 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use League\OAuth1\Client\Server\Server;
 
-class Marvel{
-    /**
+class Swapi{
+     /**
     * Your merchant's server key
     * @static
     */
     public static $serverKey;
-    public static $publicKey;
     public static $base_uat_url;
     public static $base_prod_url;
 
@@ -40,8 +39,8 @@ class Marvel{
 
     public static function getSnapBaseUrl()
     {
-        return Marvel::$isProduction ?
-        Marvel::$base_prod_url  : Marvel::$base_uat_url;
+        return Swapi::$isProduction ?
+        Swapi::$base_prod_url  : Swapi::$base_uat_url;
     }
 
     /**
@@ -52,8 +51,7 @@ class Marvel{
      */
     public static function get($url, $server_key = '', $data_hash, $isForm)
     {
-        $queryparam = Marvel::transformAuth($data_hash);
-        return self::remoteCall($url, $server_key, $queryparam, false, $isForm);
+        return self::remoteCall($url, $server_key, $data_hash, false, $isForm);
     }
 
     /**
@@ -133,8 +131,6 @@ class Marvel{
         }
 
         if(!$post && !$isForm){
-            Log::info('URL: '.$url);
-            Log::info('Key: '.$server_key);
             Log::info($data_hash);
             $result = Http::withHeaders([
                 'Accept' => 'application/json',
@@ -153,22 +149,10 @@ class Marvel{
         }
     }
 
-    public static function transformAuth($data_hash){
-        $time = strtotime(now());
-        $hash = md5($time.Marvel::$serverKey);
-        $transform = [
-            "ts" => (string)$time,
-            "apikey"=>Marvel::$publicKey,
-            "hash"=>$hash
-        ];
-        $queryparam = array_merge($data_hash,$transform);
-        return $queryparam;
-    }
-
-    public static function getCharacters($params){
-        $result = Marvel::get(
-            Marvel::getSnapBaseUrl() . '/v1/public/characters',
-            Marvel::$publicKey,
+    public static function getCharactersWithPagination($params){
+        $result = Swapi::get(
+            Swapi::getSnapBaseUrl() . '/people/',
+            Swapi::$serverKey,
             $params,
             false
         );

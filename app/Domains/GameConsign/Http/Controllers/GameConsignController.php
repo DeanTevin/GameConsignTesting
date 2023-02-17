@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Traits\PaginationTrait;
 use App\Vendors\Marvel;
+use App\Vendors\Swapi;
 use Illuminate\Pagination\LengthAwarePaginator;
 use VendorHelper;
 
@@ -45,36 +46,6 @@ class GameConsignController extends Controller
         return ResponseHelper::json($result, 200, "Anagram Functions");
     }
 
-    public function getMarvelCharacters(GetMarvelCharacterRequest $request){
-        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
-            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
-        };
-        $result = Marvel::getCharacters($request->all());
-        return ResponseHelper::json($result['data'], $result['statusCode'], "Marvel Functions");
-    }
-
-    public function getMarvelCharactersWithPagination(GetMarvelCharacterRequest $request, $perPage){
-        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
-            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
-        };
-        $result = Marvel::getCharacters($request->except(['page']));
-        $collection = collect($result['data']['results']);
-        $data = [];
-        foreach($result['data']['results'] as $key => $res){
-            $data[]=$res;
-        }
-        $paginator=$this->paginate($data, $perPage,$request->get('page'));
-        return ResponseHelper::json($paginator, $result['statusCode'], "Marvel Functions");
-    }
-
-    public function getMarvelCharactersAuth(GetMarvelCharacterRequest $request){
-        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
-            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
-        };
-        $result = Marvel::getCharacters($request->all());
-        return ResponseHelper::json($result['data'], $result['statusCode'], "Marvel Functions");
-    }
-
     public function Nparam($n=3){
         // $topBottom = str_repeat('+', $n) . PHP_EOL;
         $middle = '';
@@ -99,5 +70,41 @@ class GameConsignController extends Controller
         }
 
         return $middle;
+    }
+
+    public function getMarvelCharacters(GetMarvelCharacterRequest $request){
+        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
+            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
+        };
+        $result = Marvel::getCharacters($request->all());
+        return ResponseHelper::json($result['data'], $result['statusCode'], "Marvel Functions");
+    }
+
+    public function getMarvelCharactersWithPagination(GetMarvelCharacterRequest $request, $perPage){
+        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
+            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
+        };
+        $result = Marvel::getCharacters($request->except(['page']));
+        $collection = collect($result['data']['results']);
+        $data = [];
+        foreach($result['data']['results'] as $key => $res){
+            $data[]=$res;
+        }
+        $paginator=$this->paginate($data, $perPage,$request->get('page'));
+        return ResponseHelper::json(['results' => $paginator->items(), 'current_page'=>$paginator->currentPage(),'total'=>$paginator->total(),'perPage'=>(int)$paginator->perPage()], $result['statusCode'], "Marvel Functions");
+    }
+
+    public function getMarvelCharactersAuth(GetMarvelCharacterRequest $request){
+        if(($validate = ResponseHelper::RequestValidate($request))['validate'] == false){
+            return ResponseHelper::json($validate['data'], 406, 'Failed Validation');
+        };
+        $result = Marvel::getCharacters($request->all());
+        return ResponseHelper::json($result['data'], $result['statusCode'], "Marvel Functions");
+    }
+
+    public function getStarwarsCharactersWithPagination(Request $request){
+        $result = Swapi::getCharactersWithPagination($request->all());
+        $paginator=$this->paginate($result['results'], 10,1,$result['count'])->withPath($request->url());
+        return ResponseHelper::json($paginator, $result['statusCode'], "Swapi Functions");
     }
 }

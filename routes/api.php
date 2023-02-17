@@ -23,6 +23,7 @@ Route::group(["prefix" => "public"], function() {
     Route::post("/nparam/{n}",[GameConsignController::class,"Nparam"]);
     Route::get("/marvel",[GameConsignController::class,"getMarvelCharacters"]);
     Route::get("/marvel/{perPage}",[GameConsignController::class,"getMarvelCharactersWithPagination"]);
+    Route::get("/swapi/paginate",[GameConsignController::class,"getStarwarsCharactersWithPagination"]);
 });
 
 //PRIVATE SERVICES
